@@ -1,41 +1,30 @@
-import pandas as pd
 import re
+import pandas as pd
 
-# Define patterns for entities
-patterns = {
-  'B-PRICE': r'\bPrice\b',
-  'I-PRICE': r'\b\d+\b|ብር',
-  'B-LOC': r'\bአዲስ\b',
-  'I-LOC': r'\bአበባ\b',
-  'B-Product': r'\bLaptop\b'
-}
+# Load dataset
+data = pd.read_csv("data/preprocessed_data.csv")
 
-def label_entities(text):
-  tokens = text.split()
-  labeled_tokens = []
+# Define entity labeling function
+def label_text_conll(message):
+  labels = []
+  tokens = str(message).split()  # Convert to string and tokenize
   for token in tokens:
-    label = 'O'  # Default label
-    for entity, pattern in patterns.items():
-      if re.match(pattern, token):
-        label = entity
-        break
-    labeled_tokens.append((token, label))
-  return labeled_tokens
+    if "ELITEBOOK" in token or "LENOVO" in token or "DELL" in token:
+      labels.append(f"{token}\tB-Product")
+    elif "Price" in token or re.search(r"\d+ብር", token):
+      labels.append(f"{token}\tB-PRICE" if token == "Price" else f"{token}\tI-PRICE")
+    elif "መገናኛ" in token:
+      labels.append(f"{token}\tB-LOC")
+    else:
+      labels.append(f"{token}\tO")
+  labels.append("")  # Add blank line after each sentence
+  return "\n".join(labels)
 
 def save_labeled_data():
-  # Load dataset
-  df = pd.read_csv('data/processed_data.csv')
-  if 'Processed Message' not in df.columns:
-    raise ValueError("Column 'Processed Message' not found in the dataset.")
-  
-  # Save labeled data in CoNLL format
-  with open('data/labeled_data.conll', 'w', encoding='utf-8') as f:
-    for _, row in df.iterrows():
-      labeled_tokens = label_entities(row['Processed Message'])
-      for token, label in labeled_tokens:
-        f.write(f"{token}\t{label}\n")
-      f.write("\n")  # Blank line to separate messages
-    print("Labeled data saved to 'data/labeled_data.conll'")
+  # Label a subset of the data
+  subset = data["Cleaned_Content"].head(30)  # Use first 30 rows for labeling
+  labeled_data = "\n".join([label_text_conll(msg) for msg in subset])
 
-if __name__ == "__main__":
-  save_labeled_data()
+  # Save labeled data in CoNLL format
+  with open("data/labeled_data.conll", "w", encoding="utf-8") as file:
+    file.write(labeled_data)
