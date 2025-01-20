@@ -12,10 +12,9 @@ phone_number = os.getenv('PHONE_NUMBER')
 
 async def scrape_channel(client, channel_username, writer):
   entity = await client.get_entity(channel_username)
-  channel_title = entity.title 
-  async for message in client.iter_messages(entity, limit=500):    
-    writer.writerow([channel_title, channel_username, message.id, message.message, message.date])
-    print(f"Scraping  from {channel_username}")
+  async for message in client.iter_messages(entity):    
+    writer.writerow([channel_username, message.id, message.message, message.date])
+    print(f"Scraping {message} from {channel_username}")
 
 async def main():
   client = TelegramClient('user_session', api_id, api_hash)
@@ -24,7 +23,7 @@ async def main():
 
     with open('data/telegram_data.csv', 'w', newline='', encoding='utf-8') as file:
       writer = csv.writer(file)
-      writer.writerow(['Sender', 'Timestamp', 'Content'])
+      writer.writerow(['Sender', 'id', 'Content', 'Timestamp',])
 
       channels = [
         '@nevacomputer',
@@ -32,7 +31,7 @@ async def main():
 
       for channel in channels:
         await scrape_channel(client, channel, writer)
-        print(f"Scraping data from {channel}")
+        print(f"Scraped data  from {channel}")
 
 if __name__ == "__main__":
   import asyncio
