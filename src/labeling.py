@@ -9,11 +9,11 @@ def label_text_conll(message):
   labels = []
   tokens = str(message).split()  # Convert to string and tokenize
   for token in tokens:
-    if "ELITEBOOK" in token or "LENOVO" in token or "DELL" in token:
+    if re.search(r"\b(ELITEBOOK|LENOVO|HP|ኮምፒውተር|NEVA|COMPUTER|NOTEBOOK)\b", token, re.IGNORECASE):
       labels.append(f"{token}\tB-Product")
-    elif "Price" in token or re.search(r"\d+ብር", token):
-      labels.append(f"{token}\tB-PRICE" if token == "Price" else f"{token}\tI-PRICE")
-    elif "መገናኛ" in token:
+    elif re.search(r"\bPrice\b", token, re.IGNORECASE) or re.search(r"\d+ብር", token):
+      labels.append(f"{token}\tB-PRICE" if re.search(r"\bPrice\b", token, re.IGNORECASE) else f"{token}\tI-PRICE")
+    elif re.search(r"\bመገናኛ\b", token):
       labels.append(f"{token}\tB-LOC")
     else:
       labels.append(f"{token}\tO")
@@ -22,7 +22,7 @@ def label_text_conll(message):
 
 def save_labeled_data():
   # Label a subset of the data
-  subset = data["Cleaned_Content"].head(30)  # Use first 30 rows for labeling
+  subset = data["Cleaned_Content"].head(100)  # Use first 100 rows for labeling
   labeled_data = "\n".join([label_text_conll(msg) for msg in subset])
 
   # Save labeled data in CoNLL format
