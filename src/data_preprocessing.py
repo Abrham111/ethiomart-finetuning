@@ -4,6 +4,9 @@ import re
 # Load dataset
 data = pd.read_csv("data/telegram_data.csv")
 
+# Remove rows with NaN values in the "Content" column
+data = data.dropna(subset=["Content"])
+
 # Define stopwords
 stopwords = ["እና", "ለ", "በ", "ነበር", "እየ", "የተ", "እየነበር"]
 
