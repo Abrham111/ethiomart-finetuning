@@ -10,7 +10,7 @@ def label_text_conll(message):
   tokens = str(message).split()  # Convert to string and tokenize
   for token in tokens:
     if re.search(r"\b(ELITEBOOK|LENOVO|HP|ኮምፒውተር|NEVA|COMPUTER|NOTEBOOK)\b", token, re.IGNORECASE):
-      labels.append(f"{token}\tB-Product")
+      labels.append(f"{token}\tB-PRODUCT")
     elif re.search(r"\bPrice\b", token, re.IGNORECASE) or re.search(r"\d+ብር", token):
       labels.append(f"{token}\tB-PRICE" if re.search(r"\bPrice\b", token, re.IGNORECASE) else f"{token}\tI-PRICE")
     elif re.search(r"\bመገናኛ\b", token):
